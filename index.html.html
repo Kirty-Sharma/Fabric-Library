@@ -1,0 +1,100 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fabric Library</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#f4f5f7;color:#222}
+header{background:#1f2937;color:#fff;padding:24px}
+main{max-width:1100px;margin:25px auto;padding:0 18px}
+#search{width:100%;box-sizing:border-box;padding:14px;border:1px solid #ccc;border-radius:8px;font-size:16px;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:15px}
+.card,.detail{background:#fff;border:1px solid #ddd;border-radius:10px;padding:18px}
+.card h2{margin:7px 0;font-size:19px} .id{color:#666;font-size:13px}
+button{background:#1f2937;color:#fff;border:0;border-radius:7px;padding:10px 14px;cursor:pointer;margin-top:12px;font-size:14px}
+.back{background:#fff;color:#222;border:1px solid #aaa;margin-bottom:15px}
+table{width:100%;border-collapse:collapse}td{padding:10px;border-bottom:1px solid #eee;vertical-align:top}td:first-child{font-weight:bold;width:32%}
+.empty{background:#fff;padding:20px;border-radius:10px}
+</style></head>
+<body>
+<header><h1>Fabric Library</h1><div>Digital Fabric Specification Library</div></header>
+<main><div class="empty" style="margin-bottom:16px">Direct fabric links use <b>?fabric=FabricCode</b>. Example: <b>?fabric=C-WOV-POP-001</b></div>
+<input id="search" placeholder="Search Fabric Code, Name, Supplier...">
+<div id="app"></div>
+</main>
+<script>
+const FABRICS = [{"Fabric Code": "C-WOV-POP-001", "Core/New": "Core", "Category": "Woven", "Sub Category": "Poplin", "Fabric Name": "Premium Cotton Poplin", "Composition": "100% Cotton", "Fiber 1 %": 100, "Fiber 2 %": 0, "Fiber 3 %": 0, "Yarn Count / Denier": "60s x 60s", "Construction": "120 x 100", "GSM": 105, "Finished Width (in)": 57, "Finish": "Peach", "Dyeing / Printing": "Reactive", "Stretch %": 0, "Shrinkage %": 3, "Usable Width (in)": 56.5, "Supplier": "ABC Textiles", "Supplier Code": "ABC001", "MOQ": 1000, "Lead Time (days)": 25, "Approx. Price": 180, "Currency": "INR", "Certification": "GOTS", "Application": "Shirt / Dress", "Season": "Core", "Status": "Active", "Development Date": "2026-01-10", "Last Updated": "2026-08-11", "Owner": "Sourcing", "Fabric Detail URL": "https://company.com/fabric/C-WOV-POP-001", "QR URL": "https://company.com/fabric/C-WOV-POP-001", "Remarks": "Approved core quality"}, {"Fabric Code": "N-WOV-DOB-001", "Core/New": "New", "Category": "Woven", "Sub Category": "Dobby", "Fabric Name": "Cotton Slub Dobby", "Composition": "100% Cotton", "Fiber 1 %": 100, "Fiber 2 %": 0, "Fiber 3 %": 0, "Yarn Count / Denier": "40s x 40s", "Construction": "Dobby", "GSM": 125, "Finished Width (in)": 57, "Finish": "Soft Wash", "Dyeing / Printing": "Reactive", "Stretch %": 0, "Shrinkage %": 4, "Usable Width (in)": 56, "Supplier": "XYZ Mills", "Supplier Code": "XYZ011", "MOQ": 500, "Lead Time (days)": 30, "Approx. Price": 210, "Currency": "INR", "Certification": "OEKO-TEX", "Application": "Top / Dress", "Season": "New", "Status": "Development", "Development Date": "2026-08-01", "Last Updated": "2026-08-11", "Owner": "Product Development", "Fabric Detail URL": "https://company.com/fabric/N-WOV-DOB-001", "QR URL": "https://company.com/fabric/N-WOV-DOB-001", "Remarks": "Awaiting buyer approval"}, {"Fabric Code": "C-WOV-POP-002", "Core/New": "Core", "Category": "Woven", "Sub Category": "Jacquard", "Fabric Name": "cotton jacquard fabric", "Composition": "100% cotton", "Fiber 1 %": 100, "Fiber 2 %": 0, "Fiber 3 %": 0, "Yarn Count / Denier": "2/60s x 20s", "Construction": "110 x 82", "GSM": 250, "Finished Width (in)": 120, "Finish": "unwashed", "Dyeing / Printing": "yarn dyed", "Stretch %": 0, "Shrinkage %": 20, "Usable Width (in)": 120, "Supplier": "sachdeva fabric world", "Supplier Code": "SFW", "MOQ": 1000, "Lead Time (days)": 55, "Approx. Price": 450, "Currency": "INR", "Certification": "GOTS", "Application": "bedding", "Season": "Core", "Status": "Development", "Development Date": "2026-08-01", "Last Updated": "2026-08-11", "Owner": "Product Development"}];
+const app = document.getElementById('app');
+const search = document.getElementById('search');
+
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, function(ch) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+
+function renderList(query='') {
+  const q = query.toLowerCase();
+  const found = FABRICS.map((x,i)=>({x,i})).filter(o =>
+    Object.values(o.x).join(' ').toLowerCase().includes(q)
+  );
+
+  if (!found.length) {
+    app.innerHTML='<div class="empty">No fabric found.</div>';
+    return;
+  }
+
+  app.innerHTML='<div class="grid">'+found.map(o => {
+    const x=o.x;
+    return '<div class="card">'+
+      '<div class="id">'+esc(x["Fabric Code"]||'')+'</div>'+
+      '<h2>'+esc(x["Fabric Name"]||'Fabric')+'</h2>'+
+      '<div>'+esc(x["Composition"]||'')+'</div>'+
+      '<button type="button" class="viewBtn" data-index="'+o.i+'">View Details</button>'+
+      '</div>';
+  }).join('')+'</div>';
+
+  document.querySelectorAll('.viewBtn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      renderDetail(Number(this.dataset.index));
+    });
+  });
+}
+
+function renderDetail(index) {
+  const x=FABRICS[index];
+  if (!x) return;
+
+  const excluded = new Set(["Fabric Detail URL","QR URL","QR Code (Auto)","QR Status"]);
+  const rows = Object.entries(x)
+    .filter(([k,v]) => v !== '' && v != null && !excluded.has(k))
+    .map(([k,v]) => '<tr><td>'+esc(k)+'</td><td>'+esc(v)+'</td></tr>')
+    .join('');
+
+  app.innerHTML =
+    '<button type="button" class="back" id="backBtn">← Back to Fabric Library</button>'+
+    '<div class="detail">'+
+    '<div class="id">'+esc(x["Fabric Code"]||'')+'</div>'+
+    '<h1>'+esc(x["Fabric Name"]||'Fabric')+'</h1>'+
+    '<table>'+rows+'</table>'+
+    '</div>';
+
+  document.getElementById('backBtn').addEventListener('click', function() {
+    renderList(search.value);
+  });
+  window.scrollTo(0,0);
+}
+
+search.addEventListener('input', function() { renderList(this.value); });
+
+const requestedFabric = new URLSearchParams(window.location.search).get('fabric');
+if (requestedFabric) {
+  const idx = FABRICS.findIndex(x => String(x["Fabric Code"] || "") === requestedFabric);
+  if (idx >= 0) {
+    renderDetail(idx);
+  } else {
+    renderList(requestedFabric);
+  }
+} else {
+  renderList();
+}
+</script>
+</body></html>
